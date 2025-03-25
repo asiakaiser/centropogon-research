@@ -97,7 +97,7 @@ for (i in species) {
 }
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->![](Centropogan_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->![](Centropogan_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->![](Centropogon_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->![](Centropogon_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
 
 ``` r
 #Histograms of Anther length by species
@@ -108,7 +108,7 @@ for (i in species) {
 }
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->![](Centropogan_files/figure-gfm/unnamed-chunk-3-5.png)<!-- -->![](Centropogan_files/figure-gfm/unnamed-chunk-3-6.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->![](Centropogon_files/figure-gfm/unnamed-chunk-3-5.png)<!-- -->![](Centropogon_files/figure-gfm/unnamed-chunk-3-6.png)<!-- -->
 
 ## Shapiro Wilk Tests of normality for Flower Data
 
@@ -469,7 +469,7 @@ AsiaTheme <- theme(axis.text.x = element_text(size = 15, face = "italic"),
 plot(corolla ~ anther, data = flow.data)
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 palette <- viridis::turbo(n = 8)
@@ -507,7 +507,7 @@ plot.1 <-ggarrange(plot.1a,plot.1b)
 plot.1
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
 ``` r
 ggsave("figures/plot1.png", plot.1, width = 13, height = 5, units = "in")
@@ -580,7 +580,7 @@ plot.2 <- ggplot(cam.data.1, aes(x = f.species, y = n.obs))+
 plot.2
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 ggsave("figures/Figure 3.png", plot.2, width = 7, height = 5, units = "in")
@@ -689,7 +689,7 @@ plot(density(Boot_ExpCulmen_Anther$t))
 abline(v = 0, lty = "dashed", col = "grey60")
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ## Bootstrapping to determine correlation values and confidence intervals- Total Culmen Length to Anther Length (mm)
 
@@ -750,7 +750,7 @@ plot(density(Boot_TotCulmen_Anther$t))
 abline(v = 0, lty = "dashed", col = "grey60")
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ## Bootstrapping to determine correlation values and confidence intervals- Total Culmen Length to Corolla Length (mm)
 
@@ -810,7 +810,7 @@ plot(density(Boot_TotCulmen_Corolla$t))
 abline(v = 0, lty = "dashed", col = "grey60")
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ## *Correlation Plots*
 
@@ -831,7 +831,7 @@ plot.4 <-ggplot(flow.data, aes(x = exp.culmen.length, y = anther, color = b.spec
 plot.4
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 #Anther length and Total Culmen Length
@@ -851,7 +851,7 @@ plot.5 <-ggplot(flow.data, aes(x = tot.culmen.length, y = anther, color = b.spec
 plot.5
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 ``` r
 ggsave("figures/Anther length cor plot.png", plot.5, width = 7, height = 5, units = "in")
@@ -874,7 +874,7 @@ plot.6 <-ggplot(flow.data, aes(x = exp.culmen.length, y = corolla, color = b.spe
 plot.6
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 #Corolla length and Total Culmen Length
@@ -893,7 +893,7 @@ plot.7 <-ggplot(flow.data, aes(x = tot.culmen.length, y = corolla, color = b.spe
 plot.7
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
 ``` r
 ggsave("figures/Corolla length cor plot.png", plot.7, width = 7, height = 5, units = "in")
@@ -931,7 +931,7 @@ corolla.ci.plot <- ggplot(Boot.ci.df, aes(x=TotCulmenCI_corolla))+
 corolla.ci.plot
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ``` r
 #Total Culmen Length and Anther Correlation
@@ -945,7 +945,7 @@ anther.ci.plot <- ggplot(Boot.ci.df, aes(x=TotCulmenCI_anther))+
 anther.ci.plot
 ```
 
-![](Centropogan_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+![](Centropogon_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
 ``` r
 ggsave("figures/Corrolla length ci plot.png", corolla.ci.plot, width = 7, height = 5, units = "in")
