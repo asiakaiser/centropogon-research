@@ -1,10 +1,10 @@
 ---
-title: "Centropogan Analyses"
+title: "Centropogon Analyses"
 author: "Asia Kaiser"
 date: "2023-06-30"
 output:
+  html_document: github_document
   pdf_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Loading Packages
 
-```{r}
+```{r echo=T, results='hide',error=FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(lme4)
 library(lmerTest)
@@ -31,13 +31,13 @@ library(boot)
 #Reading in the Data
 
 ```{r}
-flow.data <- read.csv("data/Centropogan Data - Flower.csv", header = TRUE, na.strings = c(""," ","NA")) #Load in the data
+flow.data <- read.csv("data/Centropogon Data - Flower.csv", header = TRUE, na.strings = c(""," ","NA")) #Load in the data
 str(flow.data) #Look at the structure of the data
 
-cam.data <- read.csv("data/Centropogan Data - Camera.csv", header = TRUE, na.strings = c(""," ","NA"))
+cam.data <- read.csv("data/Centropogon Data - Camera.csv", header = TRUE, na.strings = c(""," ","NA"))
 str(cam.data)
 
-bird.data <-read.csv("data/Centropogan Data - Bird.csv", header = TRUE, na.strings = c(""," ","NA"))
+bird.data <-read.csv("data/Centropogon Data - Bird.csv", header = TRUE, na.strings = c(""," ","NA"))
 str(bird.data)
 
 #changing plant id to factor
@@ -225,7 +225,7 @@ plot.2 <- ggplot(cam.data.1, aes(x = f.species, y = n.obs))+
   geom_col(aes(fill = b.species), width = 0.7)+
     theme_classic2()+
   AsiaTheme+
-    labs(x = "Centropogan Species",
+    labs(x = "Centropogon Species",
        y = "Pollinator Visits",
        color=NULL)+
    theme(legend.position="top",
