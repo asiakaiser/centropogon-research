@@ -31,20 +31,20 @@ library(boot)
 #Reading in the Data
 
 ```{r}
-flow.data <- read.csv("Centropogan Data - Flower.csv", header = TRUE, na.strings = c(""," ","NA")) #Load in the data
+flow.data <- read.csv("data/Centropogan Data - Flower.csv", header = TRUE, na.strings = c(""," ","NA")) #Load in the data
 str(flow.data) #Look at the structure of the data
 
-cam.data <- read.csv("Centropogan Data - Camera.csv", header = TRUE, na.strings = c(""," ","NA"))
+cam.data <- read.csv("data/Centropogan Data - Camera.csv", header = TRUE, na.strings = c(""," ","NA"))
 str(cam.data)
 
-bird.data <-read.csv("Centropogan Data - Bird.csv", header = TRUE, na.strings = c(""," ","NA"))
+bird.data <-read.csv("data/Centropogan Data - Bird.csv", header = TRUE, na.strings = c(""," ","NA"))
 str(bird.data)
 
 #changing plant id to factor
 flow.data$f.plant_id <- as.factor(flow.data$plant_id)
 
 #museum specimen measurement data
-museum.data <-read.csv("Centropogon-hummer_data.csv")
+museum.data <-read.csv("data/Centropogon-hummer_data.csv")
 ```
 
 #Exploring the Flower Data
@@ -97,7 +97,7 @@ flow.data$f.species <- factor(flow.data$f.species, levels=c('C. talamancensis', 
 #Calculating exsertion length
 flow.data$exsertion <- flow.data$anther-flow.data$corolla
 
-mod.1 <-lmer(corolla ~ f.species + (1|f.plant_id), data = flow.data)
+mod.1 <-lme4::lmer(corolla ~ f.species + (1|f.plant_id), data = flow.data)
 summary(mod.1)
 
 emmeans(mod.1, list(pairwise ~ f.species), adjust = "tukey")
@@ -163,6 +163,7 @@ AsiaTheme <- theme(axis.text.x = element_text(size = 15, face = "italic"),
 
 ```{r}
 plot(corolla ~ anther, data = flow.data)
+palette <- viridis::turbo(n = 8)
 
 plot.1a <- ggplot(flow.data, aes(y = corolla, x= f.species, color = sex))+
   geom_boxplot(lwd=1)+
@@ -172,8 +173,8 @@ plot.1a <- ggplot(flow.data, aes(y = corolla, x= f.species, color = sex))+
   AsiaTheme+
     labs(x = "",
        y = "Corolla length (mm)")+
-  scale_colour_viridis_d()
-  
+  scale_color_manual(values = palette)
+
 plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
   geom_boxplot(lwd=1)+
   geom_jitter(alpha=0.6, width=0.15)+
@@ -182,11 +183,11 @@ plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
   AsiaTheme+
       labs(x = "",
        y = "Anther length (mm)")+
-    scale_colour_viridis_d()
+    scale_color_manual(values = palette)
 
 plot.1 <-ggarrange(plot.1a,plot.1b)
 plot.1
-ggsave("plot1.png", plot.1, width = 13, height = 5, units = "in")
+ggsave("figures/plot1.png", plot.1, width = 13, height = 5, units = "in")
 ```
 
 # Network Analyses
@@ -230,10 +231,11 @@ plot.2 <- ggplot(cam.data.1, aes(x = f.species, y = n.obs))+
    theme(legend.position="top",
         legend.title=element_blank(),
         legend.text = element_text(size = 14, face = "italic"))+
-   scale_fill_viridis_d()
+     scale_fill_manual(values = palette)
+
 plot.2
 
-ggsave("Figure 3.png", plot.2, width = 7, height = 5, units = "in")
+ggsave("figures/Figure 3.png", plot.2, width = 7, height = 5, units = "in")
 ```
 
 ## Adding Bird measurements to FLow.Data
@@ -371,7 +373,7 @@ plot.4 <-ggplot(flow.data, aes(x = exp.culmen.length, y = anther, color = b.spec
         legend.title=element_blank(),
         legend.text = element_text(size = 14, face = "italic"),
         legend.box.spacing = unit(25, "pt"))+
-   scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+      scale_color_manual(values = palette,breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
 plot.4
 
 
@@ -387,10 +389,11 @@ plot.5 <-ggplot(flow.data, aes(x = tot.culmen.length, y = anther, color = b.spec
         legend.title=element_blank(),
         legend.text = element_text(size = 14, face = "italic"),
         legend.box.spacing = unit(25, "pt"))+
-    scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+    scale_color_manual(values = palette,breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+    
 plot.5
 
-ggsave("Anther length cor plot.png", plot.5, width = 7, height = 5, units = "in")
+ggsave("figures/Anther length cor plot.png", plot.5, width = 7, height = 5, units = "in")
 ```
 
 ```{r}
@@ -406,7 +409,7 @@ plot.6 <-ggplot(flow.data, aes(x = exp.culmen.length, y = corolla, color = b.spe
         legend.title=element_blank(),
         legend.text = element_text(size = 14, face = "italic"),
         legend.box.spacing = unit(25, "pt"))+
-   scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+      scale_color_manual(values = palette,breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
 plot.6
 
 
@@ -423,9 +426,9 @@ plot.7 <-ggplot(flow.data, aes(x = tot.culmen.length, y = corolla, color = b.spe
         legend.title=element_blank(),
         legend.text = element_text(size = 14, face = "italic"),
         legend.box.spacing = unit(25, "pt"))+
-    scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+      scale_color_manual(values = palette,breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
 plot.7
-ggsave("Corolla length cor plot.png", plot.7, width = 7, height = 5, units = "in")
+ggsave("figures/Corolla length cor plot.png", plot.7, width = 7, height = 5, units = "in")
 ```
 
 ## *Correlation Estimate Density Plots*
@@ -458,8 +461,8 @@ anther.ci.plot <- ggplot(Boot.ci.df, aes(x=TotCulmenCI_anther))+
    labs(x = "Bootstrapped R values for total culmen and anther length")
 anther.ci.plot
 
-ggsave("Corrolla length ci plot.png", corolla.ci.plot, width = 7, height = 5, units = "in")
-ggsave("Anther length ci plot.png", anther.ci.plot, width = 7, height = 5, units = "in")
+ggsave("figures/Corrolla length ci plot.png", corolla.ci.plot, width = 7, height = 5, units = "in")
+ggsave("figures/Anther length ci plot.png", anther.ci.plot, width = 7, height = 5, units = "in")
 
 ```
 
