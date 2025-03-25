@@ -482,7 +482,7 @@ plot.1a <- ggplot(flow.data, aes(y = corolla, x= f.species, color = sex))+
   AsiaTheme+
     labs(x = "",
        y = "Corolla length (mm)")+
-  scale_color_manual(values = palette)
+  scale_color_manual(values = palette, name = "", labels = c("Female phase", "Male phase"))
 
 plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
   geom_boxplot(lwd=1)+
@@ -491,8 +491,8 @@ plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
   theme_classic()+
   AsiaTheme+
       labs(x = "",
-       y = "Anther length (mm)")+
-    scale_color_manual(values = palette)
+       y = "Stamen length (mm)")+
+    scale_color_manual(values = palette, name = "", labels = c("Female phase", "Male phase"))
 
 plot.1 <-ggarrange(plot.1a,plot.1b)
 ```
@@ -815,13 +815,13 @@ abline(v = 0, lty = "dashed", col = "grey60")
 ## *Correlation Plots*
 
 ``` r
-#Anther length and Exposed Culmen Length
+#Stamen length and Exposed Culmen Length
 plot.4 <-ggplot(flow.data, aes(x = exp.culmen.length, y = anther, color = b.species))+
   geom_point()+
    theme_classic2()+
   AsiaTheme+
     labs(x = "Hummingbird exposed culmen length (mm)",
-       y = "Anther length (mm)",
+       y = "Stamen length (mm)",
        color=NULL)+
    theme(legend.position="top",
         legend.title=element_blank(),
@@ -834,13 +834,13 @@ plot.4
 ![](Centropogon_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
-#Anther length and Total Culmen Length
+#Stamen length and Total Culmen Length
 plot.5 <-ggplot(flow.data, aes(x = tot.culmen.length, y = anther, color = b.species))+
   geom_point()+
    theme_classic2()+
   AsiaTheme+
     labs(x = "Hummingbird total culmen length (mm)",
-       y = "Anther length (mm)",
+       y = "Stamen length (mm)",
        color=NULL)+
    theme(legend.position="top",
         legend.title=element_blank(),
@@ -854,7 +854,7 @@ plot.5
 ![](Centropogon_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 ``` r
-ggsave("figures/Anther length cor plot.png", plot.5, width = 7, height = 5, units = "in")
+ggsave("figures/Stamen length cor plot.png", plot.5, width = 7, height = 5, units = "in")
 ```
 
 ``` r
@@ -949,7 +949,7 @@ anther.ci.plot
 
 ``` r
 ggsave("figures/Corrolla length ci plot.png", corolla.ci.plot, width = 7, height = 5, units = "in")
-ggsave("figures/Anther length ci plot.png", anther.ci.plot, width = 7, height = 5, units = "in")
+ggsave("figures/Stamen length ci plot.png", anther.ci.plot, width = 7, height = 5, units = "in")
 ```
 
 # Citations
