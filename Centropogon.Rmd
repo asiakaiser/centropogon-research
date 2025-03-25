@@ -187,7 +187,7 @@ plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
 
 plot.1 <-ggarrange(plot.1a,plot.1b)
 plot.1
-ggsave("figures/plot1.png", plot.1, width = 13, height = 5, units = "in")
+ggsave("figures/plot1.png", plot.1, width = 14, height = 5, units = "in")
 ```
 
 # Network Analyses
