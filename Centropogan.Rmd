@@ -1,0 +1,484 @@
+---
+title: "Centropogan Analyses"
+author: "Asia Kaiser"
+date: "2023-06-30"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Loading Packages
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(ggpubr)
+library(viridis)
+library(bipartite)
+#library(ggbipart)
+library(ggmosaic)
+library(ggalluvial)
+library(report)
+library(boot)
+```
+
+#Reading in the Data
+
+```{r}
+flow.data <- read.csv("Centropogan Data - Flower.csv", header = TRUE, na.strings = c(""," ","NA")) #Load in the data
+str(flow.data) #Look at the structure of the data
+
+cam.data <- read.csv("Centropogan Data - Camera.csv", header = TRUE, na.strings = c(""," ","NA"))
+str(cam.data)
+
+bird.data <-read.csv("Centropogan Data - Bird.csv", header = TRUE, na.strings = c(""," ","NA"))
+str(bird.data)
+
+#changing plant id to factor
+flow.data$f.plant_id <- as.factor(flow.data$plant_id)
+
+#museum specimen measurement data
+museum.data <-read.csv("Centropogon-hummer_data.csv")
+```
+
+#Exploring the Flower Data
+
+```{r}
+species <- unique(flow.data$f.species)
+
+#Histograms of Corolla length by species
+for (i in species) {
+  x <- flow.data$corolla[flow.data$f.species== i]
+  hist(x,
+       xlab = paste("Corolla Length",i))
+}
+
+#Histograms of Anther length by species
+for (i in species) {
+  x <- flow.data$anther[flow.data$f.species== i]
+  hist(x,
+       xlab = paste("Anther Length",i))
+}
+```
+
+## Shapiro Wilk Tests of normality for Flower Data
+
+```{r}
+#Shapiro-Wilk Test of normality of Corolla length by species
+for (i in species) {
+  x <- flow.data$corolla[flow.data$f.species== i]
+  print(shapiro.test(x))
+}
+
+
+#Shapiro-Wilk Test of normality of Anther length by species
+for (i in species) {
+  x <- flow.data$anther[flow.data$f.species== i]
+  print(shapiro.test(x))
+}
+
+## All look approximately normally distributed. 
+```
+
+## Analyzing Flower Data
+
+*Are there differences in corolla length by species and sex?*
+
+```{r}
+#Re-ording flowers
+flow.data$f.species <- factor(flow.data$f.species, levels=c('C. talamancensis', 'C. valerii', 'C. costaricae'))
+
+#Calculating exsertion length
+flow.data$exsertion <- flow.data$anther-flow.data$corolla
+
+mod.1 <-lmer(corolla ~ f.species + (1|f.plant_id), data = flow.data)
+summary(mod.1)
+
+emmeans(mod.1, list(pairwise ~ f.species), adjust = "tukey")
+report(mod.1)
+```
+
+*Are there differences in anther length by species and sex?*
+
+```{r}
+mod.2 <-lmer(anther ~ f.species + (1|f.plant_id), data = flow.data)
+summary(mod.2)
+
+emmeans(mod.2, list(pairwise ~ f.species), adjust = "tukey")
+report(mod.2)
+```
+
+*Are there differences in anther length by species and sex?*
+
+```{r}
+mod.3 <-lmer(exsertion ~ f.species + (1|f.plant_id), data = flow.data)
+summary(mod.3)
+
+emmeans(mod.3, list(pairwise ~ f.species), adjust = "tukey")
+report(mod.3)
+```
+
+## Aggregating Flower Corolla and Anther Length
+
+```{r}
+flow.data.agg.1 <- aggregate(anther ~ f.species, data = flow.data, FUN = mean)
+
+flow.data.agg <- flow.data %>%
+  group_by(f.species) %>%
+  summarise(corolla=mean(corolla))%>%
+  left_join(flow.data.agg.1, by = c("f.species"))
+
+#Looking at mean anther and corolla length for each plant species
+#Calculating exsertion length
+flow.data.agg$exsertion <- flow.data.agg$anther-flow.data.agg$corolla
+flow.data.agg
+
+#Looking at how many measurements were taken for each plant species
+flow.obs <- flow.data %>%
+  group_by(f.species) %>%
+  summarise(n.obs = n())
+
+flow.data.agg <- flow.data.agg %>%
+  left_join(flow.obs, by = c("f.species"))
+```
+
+#Data Visualization ##Creating Theme for Plots
+
+```{r}
+AsiaTheme <- theme(axis.text.x = element_text(size = 15, face = "italic"),
+  axis.text.y = element_text(size = 19),
+  axis.title.x = element_text(size = 16),
+  axis.title.y = element_text(size = 16),
+   legend.title = element_text(size = 15),
+    legend.text = element_text(size = 14))
+```
+
+##Plots
+
+```{r}
+plot(corolla ~ anther, data = flow.data)
+
+plot.1a <- ggplot(flow.data, aes(y = corolla, x= f.species, color = sex))+
+  geom_boxplot(lwd=1)+
+  geom_jitter(alpha=0.6, width=0.15)+
+  ylim(25,60)+
+    theme_classic2()+
+  AsiaTheme+
+    labs(x = "",
+       y = "Corolla length (mm)")+
+  scale_colour_viridis_d()
+  
+plot.1b <- ggplot(flow.data, aes(y = anther, x= f.species, color = sex))+
+  geom_boxplot(lwd=1)+
+  geom_jitter(alpha=0.6, width=0.15)+
+  ylim(30,80)+
+  theme_classic()+
+  AsiaTheme+
+      labs(x = "",
+       y = "Anther length (mm)")+
+    scale_colour_viridis_d()
+
+plot.1 <-ggarrange(plot.1a,plot.1b)
+plot.1
+ggsave("plot1.png", plot.1, width = 13, height = 5, units = "in")
+```
+
+# Network Analyses
+
+### Getting Datasheet into proper matrix format
+
+```{r}
+#A dataframe with bird abundance by plant species
+cam.data.1 <- cam.data %>%
+  filter(cam.data$b.species != "unknown" & !is.na(cam.data$b.species)) %>%
+   group_by(f.species, b.species) %>%
+  summarise(n.obs=n())
+
+#Pivot dataframe wide to get into correct format
+cam.data.wide <- as.data.frame(pivot_wider(cam.data.1, names_from = f.species, values_from = n.obs, values_fill = 0))
+```
+
+### Analysing Frequencies of visits per flower
+
+#### Chi-square test
+
+```{r}
+cam.data.wide <-cam.data.wide[,-1]
+chisq <- chisq.test(cam.data.wide)
+chisq
+```
+
+##Visualizing Results of Chi Square Test
+
+```{r}
+cam.data.1$f.species <- factor(cam.data.1$f.species, levels=c('C. talamancensis', 'C. valerii', 'C. costaricae'))
+species
+
+plot.2 <- ggplot(cam.data.1, aes(x = f.species, y = n.obs))+
+  geom_col(aes(fill = b.species), width = 0.7)+
+    theme_classic2()+
+  AsiaTheme+
+    labs(x = "Centropogan Species",
+       y = "Pollinator Visits",
+       color=NULL)+
+   theme(legend.position="top",
+        legend.title=element_blank(),
+        legend.text = element_text(size = 14, face = "italic"))+
+   scale_fill_viridis_d()
+plot.2
+
+ggsave("Figure 3.png", plot.2, width = 7, height = 5, units = "in")
+```
+
+## Adding Bird measurements to FLow.Data
+
+### Adding Total Culmen Length
+
+```{r}
+#Adding birds to dataset
+flow.data$b.species[flow.data$f.species == "C. talamancensis"] <-"Eugenes spectabilis"
+flow.data$b.species[flow.data$f.species == "C. valerii"] <-"Colibri cyanotus"
+flow.data$b.species[flow.data$f.species == "C. costaricae"] <- "Panterpe insignis"
+
+#Removing male Eugenes spectabilis specimens from museum dataset
+museum.data <-museum.data[!(museum.data$Species == "Eugenes spectabilis" & (museum.data$Sex == "M"|museum.data$Sex == "M inm (?)")),]
+
+
+#Adding Total culmen length to dataset by sampling from museum specimen measurements
+set.seed(1000)
+eug_spe_length<- nrow(filter(flow.data,b.species == "Eugenes spectabilis"))
+eug_spe <-sample(museum.data$Total_culmen[museum.data$Species== "Eugenes spectabilis"],eug_spe_length,replace = TRUE)
+
+col_cya_length<- nrow(filter(flow.data,b.species == "Colibri cyanotus"))
+col_cya <-sample(museum.data$Total_culmen[museum.data$Species== "Colibri cyanotus"],col_cya_length,replace = TRUE)
+
+pan_ins_length <- nrow(filter(flow.data,b.species == "Panterpe insignis"))
+pan_ins <-sample(museum.data$Total_culmen[museum.data$Species== "Panterpe insignis"],pan_ins_length,replace = TRUE)
+
+flow.data$tot.culmen.length[flow.data$b.species == "Eugenes spectabilis"] <-eug_spe
+flow.data$tot.culmen.length[flow.data$b.species == "Colibri cyanotus"] <-col_cya
+flow.data$tot.culmen.length[flow.data$b.species == "Panterpe insignis"] <-pan_ins
+
+#Adding Exposed culmen length to dataset by sampling from museum specimen measurements
+eug_spe_length<- nrow(filter(flow.data,b.species == "Eugenes spectabilis"))
+eug_spe <-sample(museum.data$Exposed_culmen_mm[museum.data$Species== "Eugenes spectabilis"],eug_spe_length,replace = TRUE)
+
+col_cya_length<- nrow(filter(flow.data,b.species == "Colibri cyanotus"))
+col_cya <-sample(museum.data$Exposed_culmen_mm[museum.data$Species== "Colibri cyanotus"],col_cya_length,replace = TRUE)
+
+pan_ins_length <- nrow(filter(flow.data,b.species == "Panterpe insignis"))
+pan_ins <-sample(museum.data$Exposed_culmen_mm[museum.data$Species== "Panterpe insignis"],pan_ins_length,replace = TRUE)
+
+flow.data$exp.culmen.length[flow.data$b.species == "Eugenes spectabilis"] <-eug_spe
+flow.data$exp.culmen.length[flow.data$b.species == "Colibri cyanotus"] <-col_cya
+flow.data$exp.culmen.length[flow.data$b.species == "Panterpe insignis"] <-pan_ins
+```
+
+# Looking at Correlation Bird Measurements and flower size
+
+## Bootstrapping to determine correlation values and confidence intervals- Exposed Culmen Length to Anther Length (mm)
+
+```{r}
+x <-flow.data$anther
+y <-flow.data$exp.culmen.length
+
+data <- data.frame(x,y)
+
+Boot_ExpCulmen_Anther <- boot(data, 
+  statistic = function(data, i) {
+    cor(data[i, "x"], data[i, "y"], method='pearson')
+  },
+  R = 1000
+)
+Boot_ExpCulmen_Anther
+
+ExpCulmen_Anther_boot.ci <- boot.ci(Boot_ExpCulmen_Anther, type = c("norm", "basic", "perc", "bca"))
+ExpCulmen_Anther_boot.ci
+
+plot(density(Boot_ExpCulmen_Anther$t))
+abline(v = 0, lty = "dashed", col = "grey60")
+
+```
+
+## Bootstrapping to determine correlation values and confidence intervals- Total Culmen Length to Anther Length (mm)
+
+```{r}
+x <-flow.data$anther
+y <-flow.data$tot.culmen.length
+
+data <- data.frame(x,y)
+
+Boot_TotCulmen_Anther <- boot(data, 
+  statistic = function(data, i) {
+    cor(data[i, "x"], data[i, "y"], method='pearson')
+  },
+  R = 1000
+)
+Boot_TotCulmen_Anther
+
+?boot.ci
+
+TotCulmen_Anther_boot.ci <- boot.ci(Boot_TotCulmen_Anther, type = c("norm", "basic", "perc", "bca"))
+TotCulmen_Anther_boot.ci
+
+plot(density(Boot_TotCulmen_Anther$t))
+abline(v = 0, lty = "dashed", col = "grey60")
+```
+
+## Bootstrapping to determine correlation values and confidence intervals- Total Culmen Length to Corolla Length (mm)
+
+```{r}
+x <-flow.data$corolla
+y <-flow.data$tot.culmen.length
+
+data <- data.frame(x,y)
+
+Boot_TotCulmen_Corolla <- boot(data, 
+  statistic = function(data, i) {
+    cor(data[i, "x"], data[i, "y"], method='pearson')
+  },
+  R = 1000
+)
+Boot_TotCulmen_Corolla
+
+?boot.ci
+
+TotCulmen_Corolla_boot.ci <- boot.ci(Boot_TotCulmen_Corolla, type = c("norm", "basic", "perc", "bca"))
+TotCulmen_Corolla_boot.ci
+
+plot(density(Boot_TotCulmen_Corolla$t))
+abline(v = 0, lty = "dashed", col = "grey60")
+```
+
+## *Correlation Plots*
+
+```{r}
+#Anther length and Exposed Culmen Length
+plot.4 <-ggplot(flow.data, aes(x = exp.culmen.length, y = anther, color = b.species))+
+  geom_point()+
+   theme_classic2()+
+  AsiaTheme+
+    labs(x = "Hummingbird exposed culmen length (mm)",
+       y = "Anther length (mm)",
+       color=NULL)+
+   theme(legend.position="top",
+        legend.title=element_blank(),
+        legend.text = element_text(size = 14, face = "italic"),
+        legend.box.spacing = unit(25, "pt"))+
+   scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+plot.4
+
+
+#Anther length and Total Culmen Length
+plot.5 <-ggplot(flow.data, aes(x = tot.culmen.length, y = anther, color = b.species))+
+  geom_point()+
+   theme_classic2()+
+  AsiaTheme+
+    labs(x = "Hummingbird total culmen length (mm)",
+       y = "Anther length (mm)",
+       color=NULL)+
+   theme(legend.position="top",
+        legend.title=element_blank(),
+        legend.text = element_text(size = 14, face = "italic"),
+        legend.box.spacing = unit(25, "pt"))+
+    scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+plot.5
+
+ggsave("Anther length cor plot.png", plot.5, width = 7, height = 5, units = "in")
+```
+
+```{r}
+#Corolla length and Exposed Culmen Length
+plot.6 <-ggplot(flow.data, aes(x = exp.culmen.length, y = corolla, color = b.species))+
+  geom_point()+
+   theme_classic2()+
+  AsiaTheme+
+    labs(x = "Hummingbird exposed culmen length (mm)",
+       y = "Corolla length (mm)",
+       color=NULL)+
+   theme(legend.position="top",
+        legend.title=element_blank(),
+        legend.text = element_text(size = 14, face = "italic"),
+        legend.box.spacing = unit(25, "pt"))+
+   scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+plot.6
+
+
+
+#Corolla length and Total Culmen Length
+plot.7 <-ggplot(flow.data, aes(x = tot.culmen.length, y = corolla, color = b.species))+
+  geom_point()+
+   theme_classic2()+
+  AsiaTheme+
+    labs(x = "Hummingbird total culmen length (mm)",
+       y = "Corolla length (mm)",
+       color=NULL)+
+   theme(legend.position="top",
+        legend.title=element_blank(),
+        legend.text = element_text(size = 14, face = "italic"),
+        legend.box.spacing = unit(25, "pt"))+
+    scale_color_viridis_d(breaks=c("Panterpe insignis", "Colibri cyanotus", "Eugenes spectabilis"))
+plot.7
+ggsave("Corolla length cor plot.png", plot.7, width = 7, height = 5, units = "in")
+```
+
+## *Correlation Estimate Density Plots*
+
+Bootstrap R values for corolla length and exposed and total culmen length 
+```{r}
+mat <- matrix(ncol = 0, nrow = 1000) 
+# converting the matrix to data frame 
+Boot.ci.df <- data.frame(mat) 
+Boot.ci.df$TotCulmenCI_corolla <-Boot_TotCulmen_Corolla$t
+Boot.ci.df$TotCulmenCI_anther <-Boot_TotCulmen_Anther$t
+
+#Total Culmen Length and Corrolla Correlation
+corolla.ci.plot <- ggplot(Boot.ci.df, aes(x=TotCulmenCI_corolla))+
+  geom_density(color="#38787D")+
+  geom_vline(aes(xintercept=0.9283094),
+            color="#3D4480", linetype="dashed", size=1)+
+     theme_classic2()+
+  AsiaTheme+
+   labs(x = "Bootstrapped R values for total culmen and corolla length")
+corolla.ci.plot
+
+#Total Culmen Length and Anther Correlation
+anther.ci.plot <- ggplot(Boot.ci.df, aes(x=TotCulmenCI_anther))+
+  geom_density(color="#38787D")+
+  geom_vline(aes(xintercept=0.9250858),
+            color="#3D4480", linetype="dashed", size=1)+
+     theme_classic2()+
+  AsiaTheme+
+   labs(x = "Bootstrapped R values for total culmen and anther length")
+anther.ci.plot
+
+ggsave("Corrolla length ci plot.png", corolla.ci.plot, width = 7, height = 5, units = "in")
+ggsave("Anther length ci plot.png", anther.ci.plot, width = 7, height = 5, units = "in")
+
+```
+
+# Citations
+R
+```{r}
+#R
+citation()
+
+#R version 
+version$version.string
+```
+
+# Packages versions
+```{r}
+library(purrr)
+
+c("tidyverse", "lme4", "lmerTest","emmeans","ggpubr","viridis","bipartite","ggmosaic","report","boot") %>%
+  map(citation) %>%
+  print(style = "text")
+```
+
