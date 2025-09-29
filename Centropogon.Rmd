@@ -148,9 +148,7 @@ flow.data.agg <- flow.data.agg %>%
   left_join(flow.obs, by = c("f.species"))
 ```
 
-#Data Visualization ##Creating Theme for Plots
-
-```{r}
+```{r, include=FALSE}
 AsiaTheme <- theme(axis.text.x = element_text(size = 15, face = "italic"),
   axis.text.y = element_text(size = 19),
   axis.title.x = element_text(size = 16),
@@ -159,9 +157,7 @@ AsiaTheme <- theme(axis.text.x = element_text(size = 15, face = "italic"),
     legend.text = element_text(size = 14))
 ```
 
-##Plots
-
-```{r}
+```{r, include=FALSE}
 plot(corolla ~ anther, data = flow.data)
 palette <- viridis::turbo(n = 8)
 
@@ -358,9 +354,8 @@ plot(density(Boot_TotCulmen_Corolla$t))
 abline(v = 0, lty = "dashed", col = "grey60")
 ```
 
-## *Correlation Plots*
 
-```{r}
+```{r, include=FALSE}
 #Stamen length and Exposed Culmen Length
 plot.4 <-ggplot(flow.data, aes(x = exp.culmen.length, y = anther, color = b.species))+
   geom_point()+
@@ -396,7 +391,7 @@ plot.5
 ggsave("figures/Stamen length cor plot.png", plot.5, width = 7, height = 5, units = "in")
 ```
 
-```{r}
+```{r, include=FALSE}
 #Corolla length and Exposed Culmen Length
 plot.6 <-ggplot(flow.data, aes(x = exp.culmen.length, y = corolla, color = b.species))+
   geom_point()+
