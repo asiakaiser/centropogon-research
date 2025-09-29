@@ -47,9 +47,8 @@ flow.data$f.plant_id <- as.factor(flow.data$plant_id)
 museum.data <-read.csv("data/Centropogon-hummer_data.csv")
 ```
 
-#Exploring the Flower Data
 
-```{r}
+```{r, include=FALSE}
 species <- unique(flow.data$f.species)
 
 #Histograms of Corolla length by species
@@ -67,9 +66,11 @@ for (i in species) {
 }
 ```
 
-## Shapiro Wilk Tests of normality for Flower Data
 
-```{r}
+
+
+```{r, include=FALSE}
+## Shapiro Wilk Tests of normality for Flower Data
 #Shapiro-Wilk Test of normality of Corolla length by species
 for (i in species) {
   x <- flow.data$corolla[flow.data$f.species== i]
